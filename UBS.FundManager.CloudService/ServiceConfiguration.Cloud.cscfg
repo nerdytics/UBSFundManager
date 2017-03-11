@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfiguration serviceName="UBS.FundManager.CloudService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="4" osVersion="*" schemaVersion="2015-04.2.6">
+  <Role name="UBS.FundManager.CloudService.Worker">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=ubsfundmanager;AccountKey=$(_ubsfundmanager.key_)" />
+      <Setting name="APPINSIGHTS_INSTRUMENTATIONKEY" value="6c256398-8a75-4cd7-ab0a-c7638da6333c" />
+    </ConfigurationSettings>
+    <Certificates>
+      <Certificate name="UBSFundManagerCertificate" thumbprint="A3BC84156500E687D7C3B2C96DE58F46A9BF1A14" thumbprintAlgorithm="sha1" />
+    </Certificates>
+  </Role>
+</ServiceConfiguration>
