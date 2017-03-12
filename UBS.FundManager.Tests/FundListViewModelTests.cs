@@ -35,7 +35,6 @@ namespace UBS.FundManager.Tests
             //Setup the event aggregator's 'EventAggregator'
             SetupEventAggregator();
 
-            _chartDialogMock = Mock.Of<EnlargeChartDialog>();
             _dialogServiceMock = Mock.Of<IDialogCoordinator>();
             _loggerMock = Mock.Of<ILoggerFacade>();
 
@@ -53,7 +52,7 @@ namespace UBS.FundManager.Tests
         {
             //Arrange view model to test (inject dependencies)
             var addFundVM = new FundListViewModel(_evtAggregatorMock.Object, 
-                                _messagingClient, _dialogServiceMock, _stockValueCalculator, _loggerMock, _chartDialogMock);
+                                _messagingClient, _dialogServiceMock, _stockValueCalculator, _loggerMock);
 
             //Assert that the messaging client's start() was invoked.
             Mock.Get(_messagingClient).Verify(mc => mc.Start(), Times.Once);
@@ -154,7 +153,6 @@ namespace UBS.FundManager.Tests
 
         private Action<FundSummaryData> _fundSummaryEventArgsCallback;
         private Mock<FundSummaryEvent> _fundSummaryEventMock;
-        private EnlargeChartDialog _chartDialogMock;
 
         private Mock<IEventAggregator> _evtAggregatorMock;
         private IDialogCoordinator _dialogServiceMock;

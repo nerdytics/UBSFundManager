@@ -15,7 +15,7 @@
         <ContentControl  DockPanel.Dock="Top" 
                          prism:RegionManager.RegionName="AddFundRegion" 
                          HorizontalAlignment="Left" Width="810" />
-        <ContentControl DockPanel.Dock="Left" 
+        <ContentControl DockPanel.Dock="Right" 
                         prism:RegionManager.RegionName="FundSummaryRegion" 
                         HorizontalAlignment="Left" Width="260"/>
         <ContentControl prism:RegionManager.RegionName="FundListRegion"

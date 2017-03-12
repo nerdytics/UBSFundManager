@@ -1,0 +1,98 @@
+﻿<Application x:Class="UBS.FundManager.UI.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:UBS.FundManager.UI"
+             xmlns:converters="clr-namespace:UBS.FundManager.UI.Converters"
+             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+             xmlns:mcontrols="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             xmlns:extDialogs="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <Application.Resources>
+        <ResourceDictionary>
+
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/LiveCharts.Wpf;component/Themes/Colors/material.xaml"/>
+
+                <!-- MahApps -->
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
+                <ResourceDictionary Source="Resources/Icons.xaml" />
+                <ResourceDictionary Source="Resources/IconsNonShared.xaml" />
+
+                <!-- Material Design -->
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.LightBlue.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Accent/MaterialDesignColor.Lime.xaml" />
+
+                <!-- Material Design: MahApps Compatibility -->
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.MahApps;component/Themes/MaterialDesignTheme.MahApps.Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.MahApps;component/Themes/MaterialDesignTheme.MahApps.Flyout.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.MahApps;component/Themes/MaterialDesignTheme.MahApps.Defaults.xaml "/>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TextBox.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- MahApps Brushes -->
+            <SolidColorBrush x:Key="HighlightBrush" Color="{DynamicResource Primary700}"/>
+            <SolidColorBrush x:Key="AccentColorBrush" Color="{DynamicResource Primary500}"/>
+            <SolidColorBrush x:Key="AccentColorBrush2" Color="{DynamicResource Primary400}"/>
+            <SolidColorBrush x:Key="AccentColorBrush3" Color="{DynamicResource Primary300}"/>
+            <SolidColorBrush x:Key="AccentColorBrush4" Color="{DynamicResource Primary200}"/>
+            <SolidColorBrush x:Key="WindowTitleColorBrush" Color="{DynamicResource Primary600}"/>
+            <SolidColorBrush x:Key="AccentSelectedColorBrush" Color="{DynamicResource Primary500Foreground}"/>
+            <LinearGradientBrush x:Key="ProgressBrush" EndPoint="0.001,0.5" StartPoint="1.002,0.5">
+                <GradientStop Color="{DynamicResource Primary700}" Offset="0"/>
+                <GradientStop Color="{DynamicResource Primary300}" Offset="1"/>
+            </LinearGradientBrush>
+            <SolidColorBrush x:Key="CheckmarkFill" Color="{DynamicResource Primary500}"/>
+            <SolidColorBrush x:Key="RightArrowFill" Color="{DynamicResource Primary500}"/>
+            <SolidColorBrush x:Key="IdealForegroundColorBrush" Color="{DynamicResource Primary500Foreground}"/>
+            <SolidColorBrush x:Key="IdealForegroundDisabledBrush" Color="{DynamicResource Primary500}" Opacity="0.4"/>
+
+            <converters:HighlightCellFromStockValueConverter x:Key="HighlightCellFromStockValueConverter" />
+            <Style x:Key="FundsDataGridCellTemplate" BasedOn="{StaticResource MetroDataGridCell}" TargetType="{x:Type DataGridCell}">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding StockInfo, Mode=OneWay, Converter={StaticResource HighlightCellFromStockValueConverter}}" Value="True">
+                        <Setter Property="Background" Value="Red" />
+                        <Setter Property="Foreground" Value="White" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+
+            <Style BasedOn="{StaticResource MetroDataGridCell}" TargetType="{x:Type DataGridCell}">
+                <Setter Property="HorizontalContentAlignment" Value="Center" />
+            </Style>
+
+            <Style x:Key="FundsDataGridColumnHeader" BasedOn="{StaticResource MetroDataGridColumnHeader}" TargetType="{x:Type DataGridColumnHeader}">
+                <Setter Property="FontSize"  Value="13" />
+                <Setter Property="FontWeight"  Value="SemiBold" />
+                <Setter Property="HorizontalAlignment" Value="Center" />
+                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                <Setter Property="controls:ControlsHelper.ContentCharacterCasing" Value="Normal"/>
+            </Style>
+
+            <Style x:Key="VisualizationDataGridColumnHeader" BasedOn="{StaticResource MetroDataGridColumnHeader}" TargetType="{x:Type DataGridColumnHeader}">
+                <Setter Property="FontSize"  Value="11" />
+                <Setter Property="FontWeight"  Value="Normal" />
+                <Setter Property="HorizontalAlignment" Value="Center" />
+                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                <Setter Property="controls:ControlsHelper.ContentCharacterCasing" Value="Normal"/>
+            </Style>
+
+            <Style x:Key="QuickAccessDeviceManagerMenuItemStyle" TargetType="{x:Type MenuItem}" BasedOn="{StaticResource MetroMenuItem}">
+                <Setter Property="Command" Value="{Binding CommandToExecute}" />
+                <Setter Property="Icon" Value="{StaticResource QuickAccessDeviceManagerIcon}" />
+                <Setter Property="Header" Value="{Binding Header, Mode=OneWay}" />
+            </Style>
+
+            <materialDesign:PackIcon Kind="Responsive" x:Key="QuickAccessDeviceManagerIcon" />
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <Thickness x:Key="ControlMargin">5</Thickness>
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

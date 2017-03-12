@@ -1,0 +1,14 @@
+﻿<ResourceDictionary xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+    <Thickness x:Key="ControlMargin">5</Thickness>
+    <!--Horizontal Alignment-->
+    <HorizontalAlignment x:Key="HAlignCenter">Center</HorizontalAlignment>
+    <HorizontalAlignment x:Key="HAlignLeft">Left</HorizontalAlignment>
+    <HorizontalAlignment x:Key="HAlignRight">Right</HorizontalAlignment>
+    <HorizontalAlignment x:Key="HAlignStretch">Stretch</HorizontalAlignment>
+    <!--Vertical Alignment-->
+    <VerticalAlignment x:Key="VAlignCenter">Center</VerticalAlignment>
+    <VerticalAlignment x:Key="VAlignLeft">Left</VerticalAlignment>
+    <VerticalAlignment x:Key="VAlignRight">Right</VerticalAlignment>
+    <VerticalAlignment x:Key="VAlignStretch">Stretch</VerticalAlignment>
+</ResourceDictionary>

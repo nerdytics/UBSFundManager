@@ -44,7 +44,7 @@
                                  HorizontalAlignment="Left" 
                                  Stretch="Uniform" 
                                  RenderTransformOrigin="0,0">
-                            <ContentControl Content="{DynamicResource appbar_windowsphone}" Focusable="False" />
+                            <ContentControl Content="{DynamicResource appbar_stock_up}" Focusable="False" />
                         </Viewbox>
                     </mcontrol:SplitButton.Icon>
                 </mcontrol:SplitButton>

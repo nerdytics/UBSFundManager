@@ -31,7 +31,7 @@ namespace UBS.FundManager.UI.FundModule.UserControls
         /// <param name="stockCalculators"></param>
         /// <param name="logger"></param>
         public FundListViewModel(IEventAggregator eventAggregator, IMessagingClient messagingClient, 
-                    IDialogCoordinator dialogService, IStockValueCalculator[] stockCalculators, ILoggerFacade logger, EnlargeChartDialog chartDialog)
+                    IDialogCoordinator dialogService, IStockValueCalculator[] stockCalculators, ILoggerFacade logger)
         {
             _eventAggregator = eventAggregator;
             _messagingClient = messagingClient;
@@ -130,6 +130,7 @@ namespace UBS.FundManager.UI.FundModule.UserControls
                                         $"{ _fundSummaryData.Serialise() }", Category.Info, Priority.None);
 
                         _eventAggregator.GetEvent<FundSummaryEvent>().Publish(_fundSummaryData);
+                        _eventAggregator.GetEvent<EnlargeChartFundSummaryEvent>().Publish(_fundSummaryData); 
                     }
                 }
             }
@@ -142,15 +143,6 @@ namespace UBS.FundManager.UI.FundModule.UserControls
                 _dialogService.ShowMessageAsync(this, "Error Occurred", $"{ e.Message }." 
                                     + Environment.NewLine + "Please inspect logs for further details.");
             }
-        }
-
-        /// <summary>
-        /// Displays an enlarged chart visualisation
-        /// </summary>
-        private async void OnEnlargeChartReceived()
-        {
-            await _dialogService.ShowMetroDialogAsync(this, _chartDialog);
-            _eventAggregator.GetEvent<EnlargeChartFundSummaryEvent>().Publish(_fundSummaryData);
         }
         #endregion
 
@@ -185,7 +177,6 @@ namespace UBS.FundManager.UI.FundModule.UserControls
 
         private ProgressDialogController _dialogController;
         private FundSummaryData _fundSummaryData;
-        private EnlargeChartDialog _chartDialog;
         static object monitor = new object();
         #endregion
 

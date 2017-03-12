@@ -11,6 +11,7 @@ using System.Linq;
 using UBS.FundManager.Messaging.Events;
 using UBS.FundManager.Messaging.Models.Fund;
 using UBS.FundManager.Common.Helpers;
+using Prism.Commands;
 
 namespace UBS.FundManager.UI.FundModule.UserControls
 {
@@ -23,7 +24,8 @@ namespace UBS.FundManager.UI.FundModule.UserControls
         /// Default Injection constructor (always invoked by IoC container)
         /// </summary>
         /// <param name="eventAggregator">Event management service (for publishing and subscribing to events)</param>
-        public FundSummaryViewModel(IEventAggregator eventAggregator, IDialogCoordinator dialogService, ILoggerFacade logger)
+        public FundSummaryViewModel(IEventAggregator eventAggregator, 
+            IDialogCoordinator dialogService, ILoggerFacade logger, EnlargeChartDialog chartDialog)
         {
             _eventAggregator = eventAggregator;
             _eventAggregator.GetEvent<DownloadedFundsListEvent>()
@@ -34,7 +36,14 @@ namespace UBS.FundManager.UI.FundModule.UserControls
 
             _dialogService = dialogService;
             _logger = logger;
+            _chartDialog = chartDialog;
+
+            EnlargeChartCommand = new DelegateCommand(OnEnlargeChart);
         }
+
+        #region
+        public DelegateCommand EnlargeChartCommand { get; set; }
+        #endregion
 
         #region Notification Properties
         private string _equityStockTitle = "Summary: Equity Stocks";
@@ -175,10 +184,21 @@ namespace UBS.FundManager.UI.FundModule.UserControls
         Predicate<IEnumerable<Fund>> DownloadedFundsListFilter = (fundsList) => fundsList.Count() > 0;
         #endregion
 
+        #region
+        /// <summary>
+        /// Displays an enlarged chart visualisation
+        /// </summary>
+        private async void OnEnlargeChart()
+        {
+            await _dialogService.ShowMetroDialogAsync(this, _chartDialog);
+        }
+        #endregion
+
         #region Fields
         private IEventAggregator _eventAggregator;
         private IDialogCoordinator _dialogService;
         private ILoggerFacade _logger;
+        private EnlargeChartDialog _chartDialog;
         #endregion
 
         #region Helper methods
