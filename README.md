@@ -10,4 +10,20 @@ UBS Developer Assessment - C# WPF (Prism) 'FundManager' Application
 | Stock name should be highlighted 'Red' for any stocks whose market value is < 0 or transaction cost > Tolerance where Tolerance = 100000 when stock type is 'Bond' or Tolerance = 200000 when stock type is 'Equity'                                          | Implemented   |
 | On the right a panel, displaying summary level information of the portfolio                                        | Implemented   |
 
+#Screenshots
+#FundManager UI
+https://cloud.githubusercontent.com/assets/26350963/23836207/9ffee326-076c-11e7-998e-d42f0563cc16.PNG
+https://cloud.githubusercontent.com/assets/26350963/23836197/9fcd316e-076c-11e7-9d2f-4bb55f4512a3.PNG
+
+#AMQP (RabbitMQ) ManagementUI
+https://cloud.githubusercontent.com/assets/26350963/23836205/9fea73be-076c-11e7-9d94-ad75278be63c.PNG
+https://cloud.githubusercontent.com/assets/26350963/23836204/9fe9e49e-076c-11e7-865b-707279ae42aa.PNG
+
+#Azure IaaS [Host VM + Cloud Storage + Cloud Service]
+https://cloud.githubusercontent.com/assets/26350963/23836199/9fd0c52c-076c-11e7-9972-5e9a156cc360.PNG
+https://cloud.githubusercontent.com/assets/26350963/23836201/9fd1ecd6-076c-11e7-96b7-745d33a0f7b6.PNG
+https://cloud.githubusercontent.com/assets/26350963/23836203/9fe910fa-076c-11e7-9f64-bcd1238caf0f.PNG
+https://cloud.githubusercontent.com/assets/26350963/23836202/9fe5e3d0-076c-11e7-99a1-3149f8c589b2.PNG
+https://cloud.githubusercontent.com/assets/26350963/23836198/9fd0b212-076c-11e7-8fea-cbee66386360.PNG
+https://cloud.githubusercontent.com/assets/26350963/23836200/9fd0fe98-076c-11e7-907c-83d0c52bd863.PNG
 
