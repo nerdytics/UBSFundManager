@@ -48,8 +48,8 @@ namespace UBS.FundManager.Service
                     serviceConfig.RunAsLocalSystem();
                     serviceConfig.StartAutomatically();
 
-                    serviceConfig.SetServiceName("IncomingMessageListener");
-                    serviceConfig.SetDisplayName("Azure Incoming Worker Service");
+                    serviceConfig.SetServiceName("UBSFundManagerWindowService");
+                    serviceConfig.SetDisplayName("UBS FundManager Worker Service");
                     serviceConfig.SetDescription("Background Service listening for MQ activities...");
 
                     serviceConfig.EnableServiceRecovery(r =>

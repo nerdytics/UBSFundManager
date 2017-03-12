@@ -21,26 +21,35 @@ namespace UBS.FundManager.Common.Helpers
         /// <param name="priority">Priority (not used)</param>
         public void Log(string message, Category category, Priority priority)
         {
-            using (EventLog eventLog = new EventLog(""))
+            string src = "UBSFundManagerUI";
+            using (EventLog eventLog = new EventLog())
             {
-                eventLog.Source = "Application";
+                if (!EventLog.SourceExists(src))
+                {
+                    EventLog.CreateEventSource(src, "UBSFundManager");
+                }
+
                 switch (category)
                 {
                     case Category.Debug:
                         log.Debug(message);
+                        EventLog.WriteEntry(src, message, EventLogEntryType.Information);
                         break;
 
                     case Category.Warn:
                         log.Warn(message);
+                        EventLog.WriteEntry(src, message, EventLogEntryType.Warning);
                         break;
 
                     case Category.Exception:
                         log.Error(message);
+                        EventLog.WriteEntry(src, message, EventLogEntryType.Error);
                         break;
 
                     case Category.Info:
                     default:
                         log.Info(message);
+                        EventLog.WriteEntry(src, message, EventLogEntryType.Information);
                         break;
                 }
             }

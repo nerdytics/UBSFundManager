@@ -53,30 +53,34 @@ namespace UBS.FundManager.Common.Helpers
 
             msg = this.GetType().Name + " : " + msg;
 
-            using (EventLog eventLog = new EventLog(""))
+            string src = "UBSFundManagerWindowService";
+            using (EventLog eventLog = new EventLog())
             {
-                eventLog.Source = "Application";
+                if(!EventLog.SourceExists(src))
+                {
+                    EventLog.CreateEventSource(src, "UBSFundManager");
+                }
 
                 switch (logLevel)
                 {
                     case LogLevel.Debug:
                         _log.Debug(msg);
-                        eventLog.WriteEntry(msg, EventLogEntryType.Information);
+                        EventLog.WriteEntry(src, msg, EventLogEntryType.Information);
                         break;
 
                     case LogLevel.Info:
                         _log.Info(msg);
-                        eventLog.WriteEntry(msg, EventLogEntryType.Information);
+                        EventLog.WriteEntry(src, msg, EventLogEntryType.Information);
                         break;
 
                     case LogLevel.Warning:
                         _log.Warn(msg);
-                        eventLog.WriteEntry(msg, EventLogEntryType.Warning);
+                        EventLog.WriteEntry(src, msg, EventLogEntryType.Warning);
                         break;
 
                     case LogLevel.Error:
                         _log.Error(msg);
-                        eventLog.WriteEntry(msg, EventLogEntryType.Error);
+                        EventLog.WriteEntry(src, msg, EventLogEntryType.Error);
                         break;
 
                     default:

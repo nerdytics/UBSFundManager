@@ -32,11 +32,21 @@ namespace UBS.FundManager.Service
         /// </summary>
         public void Start()
         {
-            SetupExchangeBindings();
-
-            for (int i = 0; i < _componentList.Count; i++)
+            try
             {
-                _componentList[i].Start();
+                _logger.Log(LogLevel.Info, $"{ GetType().Name }: Setting AMQP exchange bindings.");
+                SetupExchangeBindings();
+                _logger.Log(LogLevel.Info, $"{ GetType().Name }: Finished setting AMQP exchange bindings.");
+
+                for (int i = 0; i < _componentList.Count; i++)
+                {
+                    _logger.Log(LogLevel.Info, $"{ GetType().Name }: Starting components.");
+                    _componentList[i].Start();
+                }
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
@@ -45,9 +55,18 @@ namespace UBS.FundManager.Service
         /// </summary>
         public void Stop()
         {
-            foreach (IListeningComponent component in _componentList)
+            try
             {
-                component.Stop();
+                foreach (IListeningComponent component in _componentList)
+                {
+                    _logger.Log(LogLevel.Info, $"{ GetType().Name }: Stopping '{ component.GetType().Name }' component");
+                    component.Stop();
+                    _logger.Log(LogLevel.Info, $"{ GetType().Name }: Stopped '{ component.GetType().Name }' component");
+                }
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
@@ -94,9 +113,9 @@ namespace UBS.FundManager.Service
         {
             try
             {
-                _logger.Log(LogLevel.Info, $"In { this.GetType().Name}, setting up repository");
+                _logger.Log(LogLevel.Info, $"{ this.GetType().Name}: Setting up repository");
                 dbUtil.SetupRepository();
-                _logger.Log(LogLevel.Info, "Finished setting up repo - ");
+                _logger.Log(LogLevel.Info, $"{ this.GetType().Name}: Finished setting up db repository");
 
                 _componentList.Add(new AddFundListeningComponent(_mqConnectionHelper.GetConnectionFactory(), _logger, TriggerAction.AddFund, dbProvider, exchanges));
                 _componentList.Add(new FundsDownloadListeningComponent(_mqConnectionHelper.GetConnectionFactory(), _logger, TriggerAction.DownloadFund, dbProvider, exchanges));
@@ -142,7 +161,7 @@ namespace UBS.FundManager.Service
             }
             catch(Exception exc)
             {
-                throw exc;
+                throw;
             }
         }
 
@@ -188,7 +207,7 @@ namespace UBS.FundManager.Service
             }
             catch(Exception exc)
             {
-                throw exc;
+                throw;
             }
         }
 
