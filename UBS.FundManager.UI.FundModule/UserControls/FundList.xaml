@@ -1,0 +1,61 @@
+﻿<UserControl x:Class="UBS.FundManager.UI.FundModule.UserControls.FundList"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:UBS.FundManager.UI.FundModule.UserControls"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             xmlns:dialog ="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+             dialog:DialogParticipation.Register="{Binding}"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:mcontrol="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro" >
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <StackPanel Orientation="Vertical" Height="Auto">
+        <Expander Header="Funds in Portfolio" 
+                  IsExpanded="True" 
+                  Margin="{StaticResource ControlMargin}">
+            <ScrollViewer VerticalScrollBarVisibility="Hidden" 
+                          HorizontalScrollBarVisibility="Hidden" 
+                          Width="{Binding ElementName=DownloadedFundsGrid, Path=Width}">
+                <DataGrid x:Name="DownloadedFundsGrid" 
+                    HeadersVisibility="Column"
+                    ColumnHeaderStyle="{StaticResource FundsDataGridColumnHeader}"
+                    ItemsSource="{Binding DownloadedFundsList}" 
+                    SelectedItem="{Binding SelectedFundInGrid}" 
+                    AutoGenerateColumns="False" 
+                    CanUserSortColumns="True" 
+                    CanUserAddRows="False" 
+                    Width="500"
+                    MaxHeight="450"
+                    Margin="{StaticResource ControlMargin}"
+                    RowHeaderWidth="25"
+                    GridLinesVisibility="All"
+                    ScrollViewer.CanContentScroll="True"
+                    ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                    ScrollViewer.VerticalScrollBarVisibility="Auto"
+                    Style="{StaticResource AzureDataGrid}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Binding="{Binding Name}" CellStyle="{StaticResource FundsDataGridCellTemplate}" Header="Stock Name" IsReadOnly="True" />
+                        <DataGridTextColumn Binding="{Binding StockInfo.ValueInfo.MarketValue}" Header="Mkt. Value" />
+                        <DataGridTextColumn Binding="{Binding StockInfo.ValueInfo.TransactionCost}" Header="Tran. Cost"/>
+                        <DataGridTextColumn Binding="{Binding StockInfo.ValueInfo.StockWeight}" Header="Stock Weight"/>
+                        <DataGridTextColumn Binding="{Binding StockInfo.PurchaseInfo.PricePerUnit}" Header="Unit Price" />
+                        <DataGridTextColumn Binding="{Binding StockInfo.PurchaseInfo.QuantityPurchased}" Header="Quantity"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </ScrollViewer>
+        </Expander>
+    </StackPanel>
+</UserControl>

@@ -1,0 +1,87 @@
+﻿<UserControl x:Class="UBS.FundManager.UI.FundModule.UserControls.AddFund"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:UBS.FundManager.UI.FundModule.UserControls"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             xmlns:dialog ="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+             dialog:DialogParticipation.Register="{Binding}"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:mcontrol="http://metro.mahapps.com/winfx/xaml/controls"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    
+    <StackPanel>
+        <Expander Header="Add Fund to Portfolio" 
+                  ExpandDirection="Right"
+                  IsExpanded="True" Margin="{StaticResource ControlMargin}">
+            <StackPanel Orientation="Horizontal" Height="Auto">
+                <!-- Fund Type - Mandatory -->
+                <mcontrol:SplitButton Name="FundTypeList" 
+                                      MinWidth="150"
+                                      HorizontalAlignment="Center"
+                                      HorizontalContentAlignment="Left"
+                                      Margin="{StaticResource ControlMargin}" 
+                                      DisplayMemberPath="Name" 
+                                      ItemsSource="{Binding DataContext.FundsTypeList, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:AddFund}}}" 
+                                      SelectedIndex="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:AddFund}}, 
+                                                    Path=DataContext.SelectedFundIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                    <mcontrol:SplitButton.Icon>
+                        <Viewbox Width="32" 
+                                 Height="32" 
+                                 HorizontalAlignment="Left" 
+                                 Stretch="Uniform" 
+                                 RenderTransformOrigin="0,0">
+                            <ContentControl Content="{DynamicResource appbar_windowsphone}" Focusable="False" />
+                        </Viewbox>
+                    </mcontrol:SplitButton.Icon>
+                </mcontrol:SplitButton>
+                <!-- Price - Mandatory -->
+                <mcontrol:NumericUpDown Minimum = "0" 
+                                        Interval = "1" 
+                                        StringFormat=" £ {0:N2}" 
+                                        HasDecimals="True" 
+                                        MinWidth="100"
+                                        MaxWidth="150"
+                                        HorizontalAlignment="Stretch"
+                                        Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:AddFund}}, 
+                                                    Path=DataContext.Price}"
+                                        Margin="{StaticResource ControlMargin}" />
+
+                <!-- Quantity Purchased - Mandatory -->
+                <mcontrol:NumericUpDown Minimum = "0" 
+                                        Interval = "1" 
+                                        StringFormat=" {0} unit(s)" 
+                                        HasDecimals="False" 
+                                        MinWidth="100"
+                                        MaxWidth="150"
+                                        HorizontalAlignment="Stretch"
+                                        Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:AddFund}}, 
+                                                    Path=DataContext.Quantity}"
+                                        Margin="{StaticResource ControlMargin}" />
+
+                <!--Add Funds Button - Disabled by default until all mandatory fields have been completed -->
+                <Button Margin="{StaticResource ControlMargin}" 
+                        Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:AddFund}}, 
+                                Path=DataContext.AddFundCommand}"
+                        Style="{DynamicResource SquareButtonStyle}"
+                        Width="150" 
+                        HorizontalAlignment="Stretch"
+                        Content="Add Funds" />
+            </StackPanel>
+        </Expander>
+    </StackPanel>
+    
+</UserControl>
