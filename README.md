@@ -1,7 +1,6 @@
-# UBSFundManager
-UBS Developer Assessment - C# WPF (Prism) 'FundManager' Application
+# UBS Developer Assessment - C# WPF (Prism) 'FundManager' Application
 
-#Acceptance Criteria
+# Acceptance Criteria
 | Criteria                                                                                                           | Status        |
 | ------------------------------------------------------------------------------------------------------------------ |:-------------:|
 | Should be able to add an 'Equity' or 'Bond' stock to the fund portfolio via a panel at the top of the screen.      | Implemented   |
@@ -10,16 +9,29 @@ UBS Developer Assessment - C# WPF (Prism) 'FundManager' Application
 | Stock name should be highlighted 'Red' for any stocks whose market value is < 0 or transaction cost > Tolerance where Tolerance = 100000 when stock type is 'Bond' or Tolerance = 200000 when stock type is 'Equity'                                          | Implemented   |
 | On the right a panel, displaying summary level information of the portfolio                                        | Implemented   |
 
-#Screenshots
-#FundManager UI
+# Brief Overview
+Basically the application consists of the following components:
+* Window Service that listens on an AMQP host (deployed to an AzureVM as a cloud service)
+
+* Azure DocumentDB NoSQL database (with stored procedures / user defined functions) for fast
+query processing. Also uses MapR functions to improve query performance.
+
+* Prism MVVM driven WPF UI (with Unity IoC)
+
+* Messaging Library that abstracts AMQP connectivity from the WPF UI. Also enables easy publishing and receiving of messages from the AMQP host.
+
+* In the 'AddFund' panel at the top, the button only gets enabled when all required information has been provided.
+* In the 'FundSummary' panel to the right there is a miniature chart that visualises the information in the summary grid
+
+# Screenshots - FundManager UI
 https://cloud.githubusercontent.com/assets/26350963/23836207/9ffee326-076c-11e7-998e-d42f0563cc16.PNG
 https://cloud.githubusercontent.com/assets/26350963/23836197/9fcd316e-076c-11e7-9d2f-4bb55f4512a3.PNG
 
-#AMQP (RabbitMQ) ManagementUI
+# Screenshots - AMQP (RabbitMQ) ManagementUI
 https://cloud.githubusercontent.com/assets/26350963/23836205/9fea73be-076c-11e7-9d94-ad75278be63c.PNG
 https://cloud.githubusercontent.com/assets/26350963/23836204/9fe9e49e-076c-11e7-865b-707279ae42aa.PNG
 
-#Azure IaaS [Host VM + Cloud Storage + Cloud Service]
+# Screenshots - Azure IaaS [Host VM + Cloud Storage + Cloud Service]
 https://cloud.githubusercontent.com/assets/26350963/23836199/9fd0c52c-076c-11e7-9972-5e9a156cc360.PNG
 https://cloud.githubusercontent.com/assets/26350963/23836201/9fd1ecd6-076c-11e7-96b7-745d33a0f7b6.PNG
 https://cloud.githubusercontent.com/assets/26350963/23836203/9fe910fa-076c-11e7-9f64-bcd1238caf0f.PNG
