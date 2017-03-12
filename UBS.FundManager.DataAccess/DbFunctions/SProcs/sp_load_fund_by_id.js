@@ -11,11 +11,21 @@
                 getContext().getResponse().setBody('no docs found');
             }
             else {
-                var stock = {
-                    name: feed[0].$1,
-                    stockInfo: feed[0].$2
-                }
-                getContext().getResponse().setBody(JSON.stringify(stock));
+
+                var isAcceptedCount = collection.queryDocuments(
+                    collection.getSelfLink(),
+                    'SELECT VALUE COUNT(r.id) FROM root r where r.stockInfo.type= "' + feed[0].$2.type + '"',
+                    function (error, count, responseOption) {
+                        if (error) throw error;
+
+                        var stock = {
+                            name: feed[0].$1 + count,
+                            stockInfo: feed[0].$2
+                        }
+                        getContext().getResponse().setBody(JSON.stringify(stock));
+                    });
+
+                if (!isAcceptedCount) throw "Unable to count number of stocks.";
             }
         });
 

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Text;
 
 namespace UBS.FundManager.Common.Helpers
@@ -86,6 +87,11 @@ namespace UBS.FundManager.Common.Helpers
             {
                 resource = default(T);
             }
+        }
+
+        public static decimal ToFixedDecimal(this decimal value, int precision)
+        {
+            return Math.Round(value, precision);
         }
     }
 }

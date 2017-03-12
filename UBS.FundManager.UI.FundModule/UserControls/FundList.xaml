@@ -47,7 +47,8 @@
                     ScrollViewer.VerticalScrollBarVisibility="Auto"
                     Style="{StaticResource AzureDataGrid}">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Binding="{Binding Name}" CellStyle="{StaticResource FundsDataGridCellTemplate}" Header="Stock Name" IsReadOnly="True" />
+                        <DataGridTextColumn Binding="{Binding StockInfo.Type}" Header="Type" />
+                        <DataGridTextColumn Binding="{Binding Name}" CellStyle="{StaticResource FundsDataGridCellTemplate}" Header="Stock Name" />
                         <DataGridTextColumn Binding="{Binding StockInfo.ValueInfo.MarketValue}" Header="Mkt. Value" />
                         <DataGridTextColumn Binding="{Binding StockInfo.ValueInfo.TransactionCost}" Header="Tran. Cost"/>
                         <DataGridTextColumn Binding="{Binding StockInfo.ValueInfo.StockWeight}" Header="Stock Weight"/>

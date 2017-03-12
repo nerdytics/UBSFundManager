@@ -1,10 +1,11 @@
 ﻿using System;
 using UBS.FundManager.Messaging.Models.Fund;
+using UBS.FundManager.Common.Helpers;
 
 namespace UBS.FundManager.Messaging.FundCalculator
 {
     /// <summary>
-    /// Bond Stock Helper calculator
+    /// Bond Stock Helper calculator (only ever gets invoked when a new fund is added)
     /// </summary>
     public class BondStockCalculator : IStockValueCalculator
     {
@@ -22,16 +23,16 @@ namespace UBS.FundManager.Messaging.FundCalculator
                 return null;
             }
 
-            fundSummary.Bond.TotalStockCount += 1;
-            //Update fund name
-            newlyAdded.Name += fundSummary.Bond.TotalStockCount;
+            fundSummary.Bond.TotalStockCount += newlyAdded.StockInfo.PurchaseInfo.QuantityPurchased;
 
-            //Calculate the stock weight for the newly added fund
-            newlyAdded.StockInfo.ValueInfo.StockWeight = fundSummary.Bond.TotalMarketValue / fundSummary.All.TotalMarketValue;
+            //This is my OCD manifesting itself. No need re-calculating this at all, as its already
+            //handled and calculated by the MapR functions in the db. But will implement it as a fail safe
+            newlyAdded.StockInfo.ValueInfo.StockWeight = (fundSummary.Bond.TotalMarketValue / fundSummary.All.TotalMarketValue).ToFixedDecimal(3);
 
-            //Update the fund summary data (that populates the charts)
-            fundSummary.Bond.TotalMarketValue += newlyAdded.StockInfo.ValueInfo.MarketValue;
-            fundSummary.Bond.TotalStockWeight += newlyAdded.StockInfo.ValueInfo.StockWeight;
+            //This is my OCD manifesting itself. No need re-calculating this at all, as its already
+            //handled and calculated by the MapR functions in the db. But will implement it as a fail safe
+            fundSummary.Bond.TotalMarketValue += (newlyAdded.StockInfo.ValueInfo.MarketValue).ToFixedDecimal(3);
+            fundSummary.Bond.TotalStockWeight += (newlyAdded.StockInfo.ValueInfo.StockWeight).ToFixedDecimal(3);
 
             return newlyAdded;
         }

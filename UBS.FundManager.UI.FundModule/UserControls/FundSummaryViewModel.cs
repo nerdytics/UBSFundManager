@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using UBS.FundManager.Messaging.Events;
 using UBS.FundManager.Messaging.Models.Fund;
+using UBS.FundManager.Common.Helpers;
 
 namespace UBS.FundManager.UI.FundModule.UserControls
 {
@@ -27,6 +28,7 @@ namespace UBS.FundManager.UI.FundModule.UserControls
             _eventAggregator = eventAggregator;
             _eventAggregator.GetEvent<DownloadedFundsListEvent>()
                             .Subscribe(OnDownloadedFundsList, ThreadOption.UIThread, false, DownloadedFundsListFilter);
+
             _eventAggregator.GetEvent<FundSummaryEvent>()
                             .Subscribe(OnFundSummaryReceived, ThreadOption.UIThread, false);
 
@@ -229,30 +231,31 @@ namespace UBS.FundManager.UI.FundModule.UserControls
         {
             try
             {
-                var equityStockValue = downloadedFunds.Where(f => f.Name.StartsWith("Equity"))
-                                                  .Select(f => f.StockInfo.ValueInfo);
-                var bondStockValue = downloadedFunds.Where(f => f.Name.StartsWith("Bond"))
-                                                    .Select(f => f.StockInfo.ValueInfo);
+                IEnumerable<StockValueInfo> bondStockValue, equityStockValue;
+                GetFundValue(downloadedFunds, out bondStockValue, out equityStockValue);
+
+                int bondsStockCount, equityStockCount;
+                GetFundCount(downloadedFunds, out bondsStockCount, out equityStockCount);
 
                 EquityGridData = new ObservableCollection<SummaryData>
-            {
-                new SummaryData
                 {
-                    TotalStockCount = equityStockValue.Count(),
-                    TotalMarketValue = equityStockValue.Select(s => s.MarketValue).Sum(),
-                    TotalStockWeight = equityStockValue.Select(s => s.StockWeight).Sum()
-                }
-            };
+                    new SummaryData
+                    {
+                        TotalStockCount = equityStockCount,
+                        TotalMarketValue = equityStockValue.Select(s => s.MarketValue).Sum().ToFixedDecimal(3),
+                        TotalStockWeight = equityStockValue.Select(s => s.StockWeight).Sum().ToFixedDecimal(3)
+                    }
+                };
 
                 BondGridData = new ObservableCollection<SummaryData>
-            {
-                new SummaryData
                 {
-                    TotalStockCount = bondStockValue.Count(),
-                    TotalMarketValue = bondStockValue.Select(s => s.MarketValue).Sum(),
-                    TotalStockWeight = bondStockValue.Select(s => s.StockWeight).Sum()
-                }
-            };
+                    new SummaryData
+                    {
+                        TotalStockCount = bondsStockCount,
+                        TotalMarketValue = bondStockValue.Select(s => s.MarketValue).Sum().ToFixedDecimal(3),
+                        TotalStockWeight = bondStockValue.Select(s => s.StockWeight).Sum().ToFixedDecimal(3)
+                    }
+                };
 
                 AllStocksGridData = new ObservableCollection<SummaryData>
             {
@@ -268,6 +271,46 @@ namespace UBS.FundManager.UI.FundModule.UserControls
             {
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Calculate the total number of both equity and bond stocks
+        /// </summary>
+        /// <param name="downloadedFunds">List of all downloaded funds</param>
+        /// <param name="bondsStockCount">Count of bond stocks</param>
+        /// <param name="equityStockCount">Count of equity stocks</param>
+        private void GetFundCount(IEnumerable<Fund> downloadedFunds, out int bondsStockCount, out int equityStockCount)
+        {
+
+            equityStockCount = downloadedFunds.Where(f => string.Equals(f.StockInfo.Type,
+                                                                            FundTypeEnum.Equity.ToString(),
+                                                                            StringComparison.InvariantCultureIgnoreCase))
+                                                  .Select(f => f.StockInfo.PurchaseInfo.QuantityPurchased).Sum();
+
+            bondsStockCount = downloadedFunds.Where(f => string.Equals(f.StockInfo.Type,
+                                                                            FundTypeEnum.Bond.ToString(),
+                                                                            StringComparison.InvariantCultureIgnoreCase))
+                                                .Select(f => f.StockInfo.PurchaseInfo.QuantityPurchased).Sum();
+        }
+
+        /// <summary>
+        /// Extract the list of stock value information for both equity and bond stocks
+        /// </summary>
+        /// <param name="downloadedFunds">List of all downloaded funds</param>
+        /// <param name="bondValueInfo">List of bond stock value information</param>
+        /// <param name="equityValueInfo">List of equity stock value information</param>
+        private void GetFundValue(IEnumerable<Fund> downloadedFunds, 
+            out IEnumerable<StockValueInfo> bondValueInfo, out IEnumerable<StockValueInfo> equityValueInfo)
+        {
+            bondValueInfo = downloadedFunds.Where(f => string.Equals(f.StockInfo.Type,
+                                                                            FundTypeEnum.Bond.ToString(),
+                                                                            StringComparison.InvariantCultureIgnoreCase))
+                                                .Select(f => f.StockInfo.ValueInfo);
+
+            equityValueInfo = downloadedFunds.Where(f => string.Equals(f.StockInfo.Type,
+                                                    FundTypeEnum.Equity.ToString(),
+                                                    StringComparison.InvariantCultureIgnoreCase))
+                                                .Select(f => f.StockInfo.ValueInfo);
         }
         #endregion
     }

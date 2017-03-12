@@ -1,5 +1,6 @@
 ﻿using System;
 using UBS.FundManager.Messaging.Models.Fund;
+using UBS.FundManager.Common.Helpers;
 
 namespace UBS.FundManager.Messaging.FundCalculator
 {
@@ -9,7 +10,7 @@ namespace UBS.FundManager.Messaging.FundCalculator
     }
 
     /// <summary>
-    /// Equity Stock Helper calculator
+    /// Equity Stock Helper calculator (only ever gets invoked when a new fund is added)
     /// </summary>
     public class EquityStockCalculator : IStockValueCalculator
     {
@@ -27,16 +28,16 @@ namespace UBS.FundManager.Messaging.FundCalculator
                 return null;
             }
 
-            fundSummary.Equity.TotalStockCount += 1;
-            //Update fund name
-            newlyAdded.Name += fundSummary.Equity.TotalStockCount;
+            fundSummary.Equity.TotalStockCount += newlyAdded.StockInfo.PurchaseInfo.QuantityPurchased;
 
-            //Calculate the stock weight for the newly added fund
-            newlyAdded.StockInfo.ValueInfo.StockWeight = fundSummary.Equity.TotalMarketValue / fundSummary.All.TotalMarketValue;
+            //This is my OCD manifesting itself. No need re-calculating this at all, as its already
+            //handled and calculated by the MapR functions in the db. But will implement it as a fail safe
+            newlyAdded.StockInfo.ValueInfo.StockWeight = (fundSummary.Equity.TotalMarketValue / fundSummary.All.TotalMarketValue).ToFixedDecimal(3);
 
-            //Update the fund summary data (that populates the charts)
-            fundSummary.Equity.TotalMarketValue += newlyAdded.StockInfo.ValueInfo.MarketValue;
-            fundSummary.Equity.TotalStockWeight += newlyAdded.StockInfo.ValueInfo.StockWeight;
+            //This is my OCD manifesting itself. No need re-calculating this at all, as its already
+            //handled and calculated by the MapR functions in the db. But will implement it as a fail safe
+            fundSummary.Equity.TotalMarketValue += (newlyAdded.StockInfo.ValueInfo.MarketValue).ToFixedDecimal(3);
+            fundSummary.Equity.TotalStockWeight += (newlyAdded.StockInfo.ValueInfo.StockWeight).ToFixedDecimal(3);
 
             return newlyAdded;
         }

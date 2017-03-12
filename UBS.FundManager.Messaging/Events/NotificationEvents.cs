@@ -41,4 +41,12 @@ namespace UBS.FundManager.Messaging.Events
     {
 
     }
+
+    public class EnlargeChartFundSummaryEvent : PubSubEvent<FundSummaryData>
+    {
+
+    }
+
+    public class EnlargeChartEvent : PubSubEvent { }
+    public class FundModuleChartEvent : PubSubEvent { }
 }

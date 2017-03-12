@@ -9,6 +9,11 @@
                                 getContext().getResponse().setBody('no docs found');
                             }
                             else {
+                                //Execute a MapR job to return the overall market value
+                                var totalMarketValue = feed.map(function (row) {
+                                    return row.$2.valueInfo.marketValue;
+                                }).reduce(add, 0);
+
                                 //Execute MapR functions on the resultset for equity stocks
                                 var equityStocks = feed.filter(equityStockFilter);
                                 equityStocks = equityStocks.map(function (equityStock, index, equityStocks) {
@@ -16,6 +21,8 @@
                                         name: equityStock.$1.concat(index + 1),
                                         stockInfo: equityStock.$2
                                     };
+                                    //Update the stock weight by => stock market value / total market value
+                                    stock.stockInfo.valueInfo.stockWeight = (stock.stockInfo.valueInfo.marketValue / totalMarketValue).toFixed(3);
 
                                     return stock;
                                 });
@@ -27,6 +34,9 @@
                                         name: bondStock.$1.concat(index + 1),
                                         stockInfo: bondStock.$2
                                     };
+
+                                    //Update the stock weight by => stock market value / total market value
+                                    bstock.stockInfo.valueInfo.stockWeight = (bstock.stockInfo.valueInfo.marketValue / totalMarketValue).toFixed(3);
 
                                     return bstock;
                                 });
@@ -46,4 +56,8 @@ function equityStockFilter(value) {
 
 function bondStockFilter(value) {
     return value.$2.type == 'Bond';
+}
+
+function add(a, b) {
+    return a + b;
 }

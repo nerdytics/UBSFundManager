@@ -79,7 +79,7 @@
                 </DataGrid>
                 
                 <!--Equity Stocks Summary Visualization-->
-                <lvc:CartesianChart Grid.Row="1" Series="{Binding EquityStocksChartData}" LegendLocation="None" >
+                <lvc:CartesianChart Grid.Row="1" Series="{Binding EquityStocksChartData}" LegendLocation="None">
                     <lvc:CartesianChart.AxisX>
                         <lvc:Axis Labels="{Binding ChartLabel}"></lvc:Axis>
                     </lvc:CartesianChart.AxisX>

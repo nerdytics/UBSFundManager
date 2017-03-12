@@ -163,6 +163,10 @@
       <DependentUpon>AddFund.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\AddFundViewModel.cs" />
+    <Compile Include="UserControls\EnlargeChartDialog.xaml.cs">
+      <DependentUpon>EnlargeChartDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\EnlargeChartDialogViewModel.cs" />
     <Compile Include="UserControls\FundListViewModel.cs" />
     <Compile Include="UserControls\FundSummary.xaml.cs">
       <DependentUpon>FundSummary.xaml</DependentUpon>
@@ -198,6 +202,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="UserControls\AddFund.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\EnlargeChartDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

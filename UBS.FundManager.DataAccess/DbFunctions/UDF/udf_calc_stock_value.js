@@ -23,7 +23,7 @@ function calcStockValue(stockInfo) {
 * @param {PurchaseInfo} purchaseInfo - details of the stock purchase (i.e price per unit, quantity).
 */
 function calcMarketValue(purchaseInfo) {
-    return purchaseInfo.unitPrice * purchaseInfo.purchasedQ;
+    return (purchaseInfo.unitPrice * purchaseInfo.purchasedQ).toFixed(3);
 }
 
 /**
@@ -36,8 +36,8 @@ function calcMarketValue(purchaseInfo) {
 * @param {decimal} marketValue - current valuation of stock
 */
 function calcTranCost(stockType, marketValue) {
-    var equityValAlg = marketValue * 0.5 / 100;
-    var bondValueAlg = marketValue * 2 / 100;
+    var equityValAlg = (marketValue * 0.5 / 100).toFixed(3);
+    var bondValueAlg = (marketValue * 2 / 100).toFixed(3);
 
     switch (stockType) {
         case "Equity":

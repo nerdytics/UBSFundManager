@@ -1,6 +1,7 @@
 ﻿using log4net;
 using Prism.Logging;
 using System.Diagnostics;
+using System.IO;
 
 namespace UBS.FundManager.Common.Helpers
 {
@@ -12,6 +13,20 @@ namespace UBS.FundManager.Common.Helpers
     public class PrismLog4NetLogger : ILoggerFacade
     {
         protected static readonly ILog log = LogManager.GetLogger(typeof(PrismLog4NetLogger));
+
+        public PrismLog4NetLogger()
+        {
+            string logPath = ConfigManager.GetSetting("LogPath", "Logs");
+            DirectoryInfo directoryInfo = new DirectoryInfo(logPath);
+
+            if (!directoryInfo.Exists)
+            {
+                directoryInfo.Create();
+            }
+
+            GlobalContext.Properties["LogPath"] = logPath;
+            log4net.Config.XmlConfigurator.Configure();
+        }
 
         /// <summary>
         /// Logs a message to file and also logs to system event log (in the Application category)

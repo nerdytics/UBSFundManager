@@ -31,7 +31,7 @@ namespace UBS.FundManager.UI.FundModule.UserControls
         /// <param name="stockCalculators"></param>
         /// <param name="logger"></param>
         public FundListViewModel(IEventAggregator eventAggregator, IMessagingClient messagingClient, 
-                    IDialogCoordinator dialogService, IStockValueCalculator[] stockCalculators, ILoggerFacade logger)
+                    IDialogCoordinator dialogService, IStockValueCalculator[] stockCalculators, ILoggerFacade logger, EnlargeChartDialog chartDialog)
         {
             _eventAggregator = eventAggregator;
             _messagingClient = messagingClient;
@@ -43,8 +43,10 @@ namespace UBS.FundManager.UI.FundModule.UserControls
 
             _eventAggregator.GetEvent<DownloadedFundsListEvent>()
                           .Subscribe(OnDownloadedFundsList, ThreadOption.UIThread, false, DownloadedFundsListFilter);
+
             _eventAggregator.GetEvent<NewFundAddedEvent>()
                           .Subscribe(OnNewFundAdded, ThreadOption.BackgroundThread, false);
+
             _eventAggregator.GetEvent<FundSummaryEvent>()
                             .Subscribe(OnFundsSummaryReceived, ThreadOption.BackgroundThread, false, FundSummaryDataFilter);
         }
@@ -141,6 +143,15 @@ namespace UBS.FundManager.UI.FundModule.UserControls
                                     + Environment.NewLine + "Please inspect logs for further details.");
             }
         }
+
+        /// <summary>
+        /// Displays an enlarged chart visualisation
+        /// </summary>
+        private async void OnEnlargeChartReceived()
+        {
+            await _dialogService.ShowMetroDialogAsync(this, _chartDialog);
+            _eventAggregator.GetEvent<EnlargeChartFundSummaryEvent>().Publish(_fundSummaryData);
+        }
         #endregion
 
         #region Notification Properties
@@ -174,6 +185,7 @@ namespace UBS.FundManager.UI.FundModule.UserControls
 
         private ProgressDialogController _dialogController;
         private FundSummaryData _fundSummaryData;
+        private EnlargeChartDialog _chartDialog;
         static object monitor = new object();
         #endregion
 
