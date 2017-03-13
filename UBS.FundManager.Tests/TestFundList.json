@@ -1,0 +1,130 @@
+﻿[
+  {
+    "id": null,
+    "name": "Equity1",
+    "stockInfo": {
+      "purchaseInfo": {
+        "unitPrice": 25.5,
+        "purchasedQ": 2
+      },
+      "valueInfo": {
+        "marketValue": 51.0,
+        "transactionCost": 0.255,
+        "stockWeight": 0.0
+      },
+      "type": "Equity"
+    }
+  },
+  {
+    "id": null,
+    "name": "Equity2",
+    "stockInfo": {
+      "purchaseInfo": {
+        "unitPrice": 25.5,
+        "purchasedQ": 2
+      },
+      "valueInfo": {
+        "marketValue": 51.0,
+        "transactionCost": 0.255,
+        "stockWeight": 0.0
+      },
+      "type": "Equity"
+    }
+  },
+  {
+    "id": null,
+    "name": "Equity3",
+    "stockInfo": {
+      "purchaseInfo": {
+        "unitPrice": 15000.0,
+        "purchasedQ": 25000
+      },
+      "valueInfo": {
+        "marketValue": 375000000.0,
+        "transactionCost": 1875000.0,
+        "stockWeight": 0.928
+      },
+      "type": "Equity"
+    }
+  },
+  {
+    "id": null,
+    "name": "Equity4",
+    "stockInfo": {
+      "purchaseInfo": {
+        "unitPrice": 500.0,
+        "purchasedQ": 10
+      },
+      "valueInfo": {
+        "marketValue": 5000.0,
+        "transactionCost": 25.0,
+        "stockWeight": 0.0
+      },
+      "type": "Equity"
+    }
+  },
+  {
+    "id": null,
+    "name": "Bond1",
+    "stockInfo": {
+      "purchaseInfo": {
+        "unitPrice": 180.2,
+        "purchasedQ": 10
+      },
+      "valueInfo": {
+        "marketValue": 1802.0,
+        "transactionCost": 36.04,
+        "stockWeight": 0.0
+      },
+      "type": "Bond"
+    }
+  },
+  {
+    "id": null,
+    "name": "Bond2",
+    "stockInfo": {
+      "purchaseInfo": {
+        "unitPrice": 580.0,
+        "purchasedQ": 200
+      },
+      "valueInfo": {
+        "marketValue": 116000.0,
+        "transactionCost": 2320.0,
+        "stockWeight": 0.0
+      },
+      "type": "Bond"
+    }
+  },
+  {
+    "id": null,
+    "name": "Bond3",
+    "stockInfo": {
+      "purchaseInfo": {
+        "unitPrice": 5000.0,
+        "purchasedQ": 1000
+      },
+      "valueInfo": {
+        "marketValue": 5000000.0,
+        "transactionCost": 100000.0,
+        "stockWeight": 0.012
+      },
+      "type": "Bond"
+    }
+  },
+  {
+    "id": null,
+    "name": "Bond4",
+    "stockInfo": {
+      "purchaseInfo": {
+        "unitPrice": 12000.0,
+        "purchasedQ": 2000
+      },
+      "valueInfo": {
+        "marketValue": 24000000.0,
+        "transactionCost": 480000.0,
+        "stockWeight": 0.059
+      },
+      "type": "Bond"
+    }
+  }
+]

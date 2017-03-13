@@ -34,6 +34,7 @@
       <HintPath>..\packages\Castle.Core.4.0.0\lib\net45\Castle.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="LiveCharts, Version=0.9.4.0, Culture=neutral, PublicKeyToken=c5935629d38af058" />
     <Reference Include="MahApps.Metro, Version=1.4.3.0, Culture=neutral, PublicKeyToken=f4fb5a3c4d1e5b4f, processorArchitecture=MSIL">
       <HintPath>..\packages\MahApps.Metro.1.4.3\lib\net45\MahApps.Metro.dll</HintPath>
       <Private>True</Private>
@@ -66,12 +67,20 @@
   <ItemGroup>
     <Compile Include="AddFundViewModelTests.cs" />
     <Compile Include="FundListViewModelTests.cs" />
+    <Compile Include="FundSummaryViewModelTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <Content Include="TestFundList.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\UBS.FundManager.Common\UBS.FundManager.Common.csproj">
+      <Project>{FA7E40C6-C5B1-4BE4-AE37-A2CE6957A9CA}</Project>
+      <Name>UBS.FundManager.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\UBS.FundManager.Messaging\UBS.FundManager.Messaging.csproj">
       <Project>{6AC8D07D-AAB5-4982-92C7-6F28761E30BA}</Project>
       <Name>UBS.FundManager.Messaging</Name>

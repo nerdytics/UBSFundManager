@@ -126,11 +126,7 @@ namespace UBS.FundManager.UI.FundModule.UserControls
 
                         //Broadcast updated fund summary data so that the chart and chart grids
                         //can be updated in realtime.
-                        _logger.Log($"{ GetType().Name }: Broadcasting '{ nameof(FundSummaryEvent) }' with payload: " +
-                                        $"{ _fundSummaryData.Serialise() }", Category.Info, Priority.None);
-
                         _eventAggregator.GetEvent<FundSummaryEvent>().Publish(_fundSummaryData);
-                        _eventAggregator.GetEvent<EnlargeChartFundSummaryEvent>().Publish(_fundSummaryData); 
                     }
                 }
             }
@@ -165,6 +161,14 @@ namespace UBS.FundManager.UI.FundModule.UserControls
                 }
             }
         }
+
+        private FundSummaryData _fundSummaryData;
+        public FundSummaryData FundSummaryData
+        {
+            get { return _fundSummaryData; }
+            set { SetProperty(ref _fundSummaryData, value); }
+        }
+
         #endregion
 
         #region Fields
@@ -176,7 +180,6 @@ namespace UBS.FundManager.UI.FundModule.UserControls
         private ILoggerFacade _logger;
 
         private ProgressDialogController _dialogController;
-        private FundSummaryData _fundSummaryData;
         static object monitor = new object();
         #endregion
 
@@ -216,12 +219,17 @@ namespace UBS.FundManager.UI.FundModule.UserControls
         /// <returns></returns>
         private async Task<ProgressDialogController> ShowProgress(bool canCancel)
         {
-            ProgressDialogController dialogController = await _dialogService.ShowProgressAsync(this, "Downloading Portfolio",
-                                                                                "Retrieving all registered devices from the hub.", canCancel);
-            dialogController.SetIndeterminate();
-            dialogController.SetCancelable(canCancel);
+            if(_dialogService != null)
+            {
+                ProgressDialogController dialogController = await _dialogService.ShowProgressAsync(this, "Downloading Portfolio",
+                                                                                    "Retrieving all registered devices from the hub.", canCancel, null);
+                dialogController.SetIndeterminate();
+                dialogController.SetCancelable(canCancel);
 
-            return dialogController;
+                return dialogController;
+            }
+
+            return null;
         }
         #endregion
     }

@@ -278,14 +278,14 @@ namespace UBS.FundManager.UI.FundModule.UserControls
                 };
 
                 AllStocksGridData = new ObservableCollection<SummaryData>
-            {
-                new SummaryData
                 {
-                    TotalStockCount = EquityGridData.First().TotalStockCount + BondGridData.First().TotalStockCount,
-                    TotalMarketValue = EquityGridData.First().TotalMarketValue + BondGridData.First().TotalMarketValue,
-                    TotalStockWeight = EquityGridData.First().TotalStockWeight + BondGridData.First().TotalStockWeight,
-                }
-            };
+                    new SummaryData
+                    {
+                        TotalStockCount = EquityGridData.First().TotalStockCount + BondGridData.First().TotalStockCount,
+                        TotalMarketValue = EquityGridData.First().TotalMarketValue + BondGridData.First().TotalMarketValue,
+                        TotalStockWeight = EquityGridData.First().TotalStockWeight + BondGridData.First().TotalStockWeight,
+                    }
+                };
             }
             catch (Exception)
             {

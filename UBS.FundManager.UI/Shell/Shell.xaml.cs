@@ -19,8 +19,10 @@ namespace UBS.FundManager.UI.Shell
             this.Closing += Shell_Closing;
         }
 
-        private async void Shell_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void Shell_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            _messagingClient.Dispose();
+            Application.Current.Shutdown();
             //MessageDialogResult dialogResult = await _dialogService.ShowMessageAsync(this, "Shutting Down",
             //                                                            "Are you sure about shutting down?", MessageDialogStyle.AffirmativeAndNegative);
 
