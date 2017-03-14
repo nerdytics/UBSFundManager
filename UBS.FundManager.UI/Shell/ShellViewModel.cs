@@ -1,7 +1,5 @@
 ﻿using MahApps.Metro.Controls.Dialogs;
-using Prism.Commands;
 using Prism.Mvvm;
-using System.Threading.Tasks;
 
 namespace UBS.FundManager.UI.Shell
 {

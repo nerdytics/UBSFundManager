@@ -5,7 +5,6 @@ using Prism.Events;
 using Prism.Logging;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -28,37 +27,17 @@ namespace UBS.FundManager.Tests
         [SetUp]
         public void SetupMocks()
         {
-            //Setup the mock of the 'DownloadedFundsListEvent' to inject into the event aggregator
             SetupDownloadedFundsListEvent();
-
-            //Setup the mock of the 'NewFundAddedEvent' to inject into the event aggregator
             SetupNewFundAddedEvent();
+            SetupFundListViewSummaryEvent();
 
-            //Setup the mock of the 'FundSummaryEvent' to inject into the event aggregator
             SetupFundSummaryEvent();
-
-            //Setup the event aggregator's 'EventAggregator'
             SetupEventAggregator();
+            SetupDialogServiceMock();
 
-            _dialogServiceMock = new Mock<IDialogCoordinator>();
-            _dialogServiceMock.Setup(dlg => dlg.ShowProgressAsync(It.IsAny<object>(),
-                                                                    It.IsAny<string>(),
-                                                                    It.IsAny<string>(),
-                                                                    It.IsAny<bool>(),
-                                                                    It.IsAny<MetroDialogSettings>()))
-                              .Returns(() => Task.FromResult(Mock.Of<ProgressDialogController>()));
-
+            SetupMessagingClientMock();
+            SetupStockValueCalculatorMock();
             _loggerMock = Mock.Of<ILoggerFacade>();
-            _messagingClient = Mock.Of<IMessagingClient>();
-
-            // Setup stockvalue calculator
-            _fundSummaryDataMock = Mock.Of<FundSummaryData>();
-            Mock<IStockValueCalculator> calculatorMock = new Mock<IStockValueCalculator>();
-
-            calculatorMock.Setup(c => c.Calculate(ref _fundSummaryDataMock, It.IsAny<Fund>()))
-                          .Returns((FundSummaryData fd, Fund f) => f);
-
-            _stockValueCalculator = new IStockValueCalculator[] { calculatorMock.Object };
         }
 
         /// <summary>
@@ -73,48 +52,42 @@ namespace UBS.FundManager.Tests
         {
             //Arrange view model to test (inject dependencies)
             var fundListVM = new FundListViewModel(_evtAggregatorMock.Object, 
-                                _messagingClient, null, _stockValueCalculator, _loggerMock);
+                                _messagingClientMock.Object, null, _stockValueCalculator, _loggerMock);
 
-            //Assert that the messaging client's start() was invoked.
-            Mock.Get(_messagingClient).Verify(mc => mc.Start(), Times.Once);
+            //Messaging client's start() was invoked.
+            Mock.Get(_messagingClientMock.Object).Verify(mc => mc.Start(), Times.Once);
 
-            //Assert that the messaging client's publish() was invoked.
-            Mock.Get(_messagingClient).Verify(mc => mc.Publish(
+            //Messaging client's publish() was invoked.
+            Mock.Get(_messagingClientMock.Object).Verify(mc => mc.Publish(
                                         It.IsAny<object>(), It.IsAny<TriggerAction>()), Times.AtLeastOnce);
 
-            //Assert that logger's log() was invoked.
-            Mock.Get(_loggerMock).Verify(
-                                    logger => logger.Log(It.IsAny<string>(), 
-                                                        It.IsAny<Category>(), 
-                                                        It.IsAny<Priority>()), 
-                                    Times.AtLeastOnce);
-
-            //Assert that event aggregator's downloadedfunds / newfundsaddedevent / fundsummaryevent were
-            //subscribed to an instantiation of the FundListViewModel.
+            //Assert that all events have been subscribed to
             Mock.Get(_evtAggregatorMock.Object).Verify(evt => evt.GetEvent<DownloadedFundsListEvent>(), Times.Once);
             Mock.Get(_evtAggregatorMock.Object).Verify(evt => evt.GetEvent<NewFundAddedEvent>(), Times.Once);
-            Mock.Get(_evtAggregatorMock.Object).Verify(evt => evt.GetEvent<FundSummaryEvent>(), Times.Once);
+            Mock.Get(_evtAggregatorMock.Object).Verify(evt => evt.GetEvent<FundsListViewSummaryEvent>(), Times.Once);
 
-            // Asserts that the DownloadedFundsList (notification property storing the downloaded
-            // funds list.
-            Assert.That(fundListVM.DownloadedFundsList == null);
+            // Asserts that the DownloadedFundsList is empty
+            Assert.That(fundListVM.DownloadedFundsList.Count == 0);
 
             // Simulate the publish of downloadedfundslist event
             var asJson = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFundList.json"));
             IEnumerable<Fund> testFundsList = asJson.Deserialise<IEnumerable<Fund>>();
             _dlEventArgsCallback(testFundsList);
 
-            // Assert that the DownloadedFunds list (datasource for the portfolio grid) now had data
+            // Assert that the DownloadedFunds list (datasource for the portfolio grid) now has data
             Assert.That(fundListVM.DownloadedFundsList.Count > 0);
             Assert.That(fundListVM.DownloadedFundsList.Count == testFundsList.Count());
 
             // Assert that a log was written
-            //Assert that logger's log() was invoked.
             Mock.Get(_loggerMock).Verify(
                                     logger => logger.Log(It.IsAny<string>(),
                                                         It.IsAny<Category>(),
                                                         It.IsAny<Priority>()),
                                     Times.AtLeastOnce);
+
+            // Assert that FundSummaryViewModel was pinged the downloaded funds
+            Mock.Get(_fundSummaryDListEventsMock.Object).Verify(
+                                    evt => evt.Publish(It.IsAny<IEnumerable<Fund>>()), Times.AtLeastOnce);
         }
 
         /// <summary>
@@ -128,29 +101,20 @@ namespace UBS.FundManager.Tests
         {
             //Arrange view model to test (inject dependencies)
             var fundListVM = new FundListViewModel(_evtAggregatorMock.Object,
-                                _messagingClient, null, _stockValueCalculator, _loggerMock);
+                                _messagingClientMock.Object, null, _stockValueCalculator, _loggerMock);
 
             //Assert that the messaging client's start() was invoked.
-            Mock.Get(_messagingClient).Verify(mc => mc.Start(), Times.Once);
+            Mock.Get(_messagingClientMock.Object).Verify(mc => mc.Start(), Times.Once);
 
             //Assert that the messaging client's publish() was invoked.
-            Mock.Get(_messagingClient).Verify(mc => mc.Publish(
+            Mock.Get(_messagingClientMock.Object).Verify(mc => mc.Publish(
                                         It.IsAny<object>(), It.IsAny<TriggerAction>()), Times.AtLeastOnce);
 
-            //Assert that logger's log() was invoked.
-            Mock.Get(_loggerMock).Verify(
-                                    logger => logger.Log(It.IsAny<string>(),
-                                                        It.IsAny<Category>(),
-                                                        It.IsAny<Priority>()),
-                                    Times.AtLeastOnce);
-
-            //Assert that event aggregator's newfundsaddedevent was
-            //subscribed to on instantiation of the FundListViewModel.
+            //Assert that 'NewFundAddedEvent' has been subscribed to
             Mock.Get(_evtAggregatorMock.Object).Verify(evt => evt.GetEvent<NewFundAddedEvent>(), Times.Once);
 
-            // Asserts that the DownloadedFundsList (notification property storing the downloaded
-            // funds list.
-            Assert.That(fundListVM.DownloadedFundsList == null);
+            // Asserts that the DownloadedFundsList (notification property storing the downloaded funds list) is empty.
+            Assert.That(fundListVM.DownloadedFundsList.Count == 0);
 
             // Simulate the publish of downloadedfundslist event
             var asJson = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestFundList.json"));
@@ -175,10 +139,8 @@ namespace UBS.FundManager.Tests
             Assert.That(fundListVM.DownloadedFundsList.Count == (testFundsList.Count() + 1));
 
             // Assert that FundSummary event was broadcasted
-            // Testing GetEvent was called twice because 1. was the subscription event
-            // while 2. will be the publish fundsummary event.
             Mock.Get(_evtAggregatorMock.Object).Verify(evt => 
-                            evt.GetEvent<FundSummaryEvent>(), Times.Exactly(2));
+                            evt.GetEvent<FundSummaryEvent>(), Times.Once);
 
             // Assert that a log was written
             //Assert that logger's log() was invoked.
@@ -203,25 +165,54 @@ namespace UBS.FundManager.Tests
             _evtAggregatorMock.Setup(evt => evt.GetEvent<NewFundAddedEvent>())
                               .Returns(_newFundEventMock.Object);
 
+            _evtAggregatorMock.Setup(evt => evt.GetEvent<FundsListViewSummaryEvent>())
+                              .Returns(_fundListViewSummaryEventMock.Object);
+
             _evtAggregatorMock.Setup(evt => evt.GetEvent<FundSummaryEvent>())
                               .Returns(_fundSummaryEventMock.Object);
+
+            _evtAggregatorMock.Setup(evt => evt.GetEvent<FundSummaryDownloadListEvent>())
+                              .Returns(_fundSummaryDListEventsMock.Object);
+
+            _evtAggregatorMock.Setup(evt => evt.GetEvent<FundsListViewSummaryEvent>())
+                              .Returns(_fundsListVSummaryEventMock.Object);
         }
 
         /// <summary>
-        /// Instantiates the fundsummaryevent mock and sets up the
+        /// Instantiates the FundsListViewSummaryEvent mock and sets up the
         /// callback returned to the eventaggregator when event is invoked.
+        /// </summary>
+        private void SetupFundListViewSummaryEvent()
+        {
+            _fundListViewSummaryEventMock = new Mock<FundsListViewSummaryEvent>();
+            _fundListViewSummaryEventMock.Setup(p => p.Publish(It.IsAny<FundSummaryData>()))
+                     .Callback(() => { });
+            //_fundListViewSummaryEventMock.Setup(p => p.Subscribe(
+            //    It.IsAny<Action<FundSummaryData>>(),
+            //    It.IsAny<ThreadOption>(),
+            //    It.IsAny<bool>(),
+            //    It.IsAny<Predicate<FundSummaryData>>()))
+            //        .Callback<Action<FundSummaryData>, ThreadOption, bool, Predicate<FundSummaryData>>
+            //            ((newFundSummary, threadOption, keepReferenceAlive, filter) =>
+            //                _fundSummaryEventArgsCallback = newFundSummary);
+        }
+
+        /// <summary>
+        /// Mocks the FundSummaryEvent
         /// </summary>
         private void SetupFundSummaryEvent()
         {
             _fundSummaryEventMock = new Mock<FundSummaryEvent>();
-            _fundSummaryEventMock.Setup(p => p.Subscribe(
-                It.IsAny<Action<FundSummaryData>>(),
-                It.IsAny<ThreadOption>(),
-                It.IsAny<bool>(),
-                It.IsAny<Predicate<FundSummaryData>>()))
-                    .Callback<Action<FundSummaryData>, ThreadOption, bool, Predicate<FundSummaryData>>
-                        ((newFundSummary, threadOption, keepReferenceAlive, filter) =>
-                            _fundSummaryEventArgsCallback = newFundSummary);
+            _fundSummaryEventMock.Setup(p => p.Publish(It.IsAny<FundSummaryData>()))
+                     .Callback(() => { });
+
+            _fundSummaryDListEventsMock = new Mock<FundSummaryDownloadListEvent>();
+            _fundListViewSummaryEventMock.Setup(p => p.Publish(It.IsAny<FundSummaryData>()))
+                                         .Callback(() => { });
+
+            _fundsListVSummaryEventMock = new Mock<FundsListViewSummaryEvent>();
+            _fundListViewSummaryEventMock.Setup(p => p.Publish(It.IsAny<FundSummaryData>()))
+                             .Callback(() => { });
         }
 
         /// <summary>
@@ -256,6 +247,45 @@ namespace UBS.FundManager.Tests
                         ((downloadedFunds, threadOption, keepReferenceAlive, filter) =>
                             _dlEventArgsCallback = downloadedFunds);
         }
+
+        /// <summary>
+        /// Instantiates the test stock value calculators
+        /// </summary>
+        private void SetupStockValueCalculatorMock()
+        {
+            _fundSummaryDataMock = Mock.Of<FundSummaryData>();
+            Mock<IStockValueCalculator> calculatorMock = new Mock<IStockValueCalculator>();
+
+            calculatorMock.Setup(c => c.Calculate(ref _fundSummaryDataMock, It.IsAny<Fund>()))
+                          .Returns((FundSummaryData fd, Fund f) => f);
+
+            _stockValueCalculator = new IStockValueCalculator[] { calculatorMock.Object };
+        }
+
+        /// <summary>
+        /// Mocks the dialog service
+        /// </summary>
+        private void SetupDialogServiceMock()
+        {
+            _dialogServiceMock = new Mock<IDialogCoordinator>();
+            _dialogServiceMock.Setup(dlg => dlg.ShowProgressAsync(It.IsAny<object>(),
+                                                                    It.IsAny<string>(),
+                                                                    It.IsAny<string>(),
+                                                                    It.IsAny<bool>(),
+                                                                    It.IsAny<MetroDialogSettings>()))
+                              .Returns(() => Task.FromResult(Mock.Of<ProgressDialogController>()));
+        }
+
+        /// <summary>
+        /// Mocks the messaging client start and publish methods
+        /// </summary>
+        private void SetupMessagingClientMock()
+        {
+            _messagingClientMock = new Mock<IMessagingClient>();
+            _messagingClientMock.Setup(mc => mc.Start()).Callback(() => { });
+            _messagingClientMock.Setup(mc => mc.Publish(It.IsAny<object>(), It.IsAny<TriggerAction>()))
+                                .Callback(() => { });
+        }
         #endregion
 
         #region Fields
@@ -264,16 +294,19 @@ namespace UBS.FundManager.Tests
 
         private Action<Fund> _newFundEventArgsCallback;
         private Mock<NewFundAddedEvent> _newFundEventMock;
-
         private Action<FundSummaryData> _fundSummaryEventArgsCallback;
         private Mock<FundSummaryEvent> _fundSummaryEventMock;
+
+        private Mock<FundsListViewSummaryEvent> _fundsListVSummaryEventMock;
+        private Mock<FundsListViewSummaryEvent> _fundListViewSummaryEventMock;
+        private Mock<FundSummaryDownloadListEvent> _fundSummaryDListEventsMock;
         private FundSummaryData _fundSummaryDataMock;
 
         private Mock<IEventAggregator> _evtAggregatorMock;
         private Mock<IDialogCoordinator> _dialogServiceMock;
 
         private ILoggerFacade _loggerMock;
-        private IMessagingClient _messagingClient;
+        private Mock<IMessagingClient> _messagingClientMock;
         private IStockValueCalculator[] _stockValueCalculator;
         #endregion
     }

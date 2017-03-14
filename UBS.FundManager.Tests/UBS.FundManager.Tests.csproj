@@ -66,6 +66,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddFundViewModelTests.cs" />
+    <Compile Include="BondStockCalculatorTests.cs" />
+    <Compile Include="EquityStockCalculatorTests.cs" />
     <Compile Include="FundListViewModelTests.cs" />
     <Compile Include="FundSummaryViewModelTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

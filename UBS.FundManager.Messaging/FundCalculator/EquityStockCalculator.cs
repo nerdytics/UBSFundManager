@@ -23,21 +23,76 @@ namespace UBS.FundManager.Messaging.FundCalculator
         public Fund Calculate(ref FundSummaryData fundSummary, Fund newlyAdded)
         {
             FundTypeEnum fundEnum;
+            SummaryData equitySummary = null, allSummary = null;
+            
             if (!Enum.TryParse(newlyAdded.StockInfo.Type, out fundEnum) || fundEnum != FundTypeEnum.Equity)
             {
                 return null;
             }
 
-            fundSummary.Equity.TotalStockCount += newlyAdded.StockInfo.PurchaseInfo.QuantityPurchased;
+            int quantity = newlyAdded.StockInfo.PurchaseInfo.QuantityPurchased;
+            StockValueInfo newlyAddedInfo = newlyAdded.StockInfo.ValueInfo;
 
-            //This is my OCD manifesting itself. No need re-calculating this at all, as its already
-            //handled and calculated by the MapR functions in the db. But will implement it as a fail safe
-            newlyAdded.StockInfo.ValueInfo.StockWeight = (fundSummary.Equity.TotalMarketValue / fundSummary.All.TotalMarketValue).ToFixedDecimal(3);
+            if (fundSummary != null)
+            {
+                if(fundSummary.Equity != null && fundSummary.Equity.TotalStockCount > 0)
+                {
 
-            //This is my OCD manifesting itself. No need re-calculating this at all, as its already
-            //handled and calculated by the MapR functions in the db. But will implement it as a fail safe
-            fundSummary.Equity.TotalMarketValue += (newlyAdded.StockInfo.ValueInfo.MarketValue).ToFixedDecimal(3);
-            fundSummary.Equity.TotalStockWeight += (newlyAdded.StockInfo.ValueInfo.StockWeight).ToFixedDecimal(3);
+                    equitySummary = fundSummary.Equity;
+                    allSummary = fundSummary.All;
+
+                    // Update stock counts
+                    equitySummary.TotalStockCount = equitySummary.TotalStockCount.CalculateTotal(quantity);
+                    fundSummary.All.TotalStockCount = allSummary.TotalStockCount.CalculateTotal(quantity);
+
+                    // Update market values
+                    equitySummary.TotalMarketValue = equitySummary.TotalMarketValue.CalculateTotal(newlyAddedInfo.MarketValue);
+                    fundSummary.All.TotalMarketValue = allSummary.TotalMarketValue.CalculateTotal(newlyAddedInfo.MarketValue);
+
+                    // Update stock weights
+                    newlyAddedInfo.StockWeight = newlyAddedInfo.MarketValue.ToStockWeight(allSummary.TotalMarketValue);
+                    equitySummary.TotalStockWeight = equitySummary.TotalMarketValue.ToStockWeight(allSummary.TotalMarketValue);
+                    allSummary.TotalStockWeight = allSummary.TotalMarketValue.ToStockWeight(allSummary.TotalMarketValue);
+                }
+                else if(fundSummary.All != null && fundSummary.All.TotalStockCount > 0)
+                {
+                    allSummary = fundSummary.All;
+
+                    //Found bond stocks in portfolio (update portfolio totals)
+                    allSummary.TotalStockCount = allSummary.TotalStockCount.CalculateTotal(quantity);
+                    allSummary.TotalMarketValue = allSummary.TotalMarketValue.CalculateTotal(newlyAddedInfo.MarketValue);
+
+                    newlyAddedInfo.StockWeight = newlyAddedInfo.MarketValue.ToStockWeight(allSummary.TotalMarketValue);
+                    allSummary.TotalStockWeight = allSummary.TotalMarketValue.ToStockWeight(allSummary.TotalMarketValue);
+                }
+            }
+            else
+            {
+                // Empty portfolio, this is the first stock to be added
+                newlyAddedInfo.StockWeight = newlyAddedInfo.MarketValue.ToStockWeight(newlyAddedInfo.MarketValue);
+
+                equitySummary = new SummaryData
+                {
+                    TotalStockCount = quantity,
+                    TotalMarketValue = newlyAddedInfo.MarketValue,
+                    TotalStockWeight = newlyAddedInfo.StockWeight
+                };
+
+                fundSummary = new FundSummaryData
+                {
+                    Equity = equitySummary,
+                    All = new SummaryData
+                    {
+                        TotalStockCount = equitySummary.TotalStockCount,
+                        TotalMarketValue = equitySummary.TotalMarketValue,
+                        TotalStockWeight = equitySummary.TotalStockWeight
+                    }
+                };
+            }
+
+            newlyAdded.StockInfo.ValueInfo = newlyAddedInfo;
+            fundSummary.Equity = equitySummary;
+            fundSummary.All = allSummary;
 
             return newlyAdded;
         }

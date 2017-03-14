@@ -38,6 +38,9 @@ namespace UBS.FundManager.UI.Converters
             return DependencyProperty.UnsetValue;
         }
 
+        /// <summary>
+        /// Filters to determine violation of tolerance levels per fund type
+        /// </summary>
         Predicate<decimal> BondsStockToleranceFilter = (transactionCost) => transactionCost > 100000;
         Predicate<decimal> EquityStockToleranceFilter = (transactionCost) => transactionCost > 200000;
     }

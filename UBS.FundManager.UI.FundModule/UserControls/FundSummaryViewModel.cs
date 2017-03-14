@@ -28,7 +28,7 @@ namespace UBS.FundManager.UI.FundModule.UserControls
             IDialogCoordinator dialogService, ILoggerFacade logger, EnlargeChartDialog chartDialog)
         {
             _eventAggregator = eventAggregator;
-            _eventAggregator.GetEvent<DownloadedFundsListEvent>()
+            _eventAggregator.GetEvent<FundSummaryDownloadListEvent>()
                             .Subscribe(OnDownloadedFundsList, ThreadOption.UIThread, false, DownloadedFundsListFilter);
 
             _eventAggregator.GetEvent<FundSummaryEvent>()
@@ -46,6 +46,14 @@ namespace UBS.FundManager.UI.FundModule.UserControls
         #endregion
 
         #region Notification Properties
+        private string _allStocksTitle = "Summary: All Stocks";
+
+        public string AllStocksTitle
+        {
+            get { return _allStocksTitle; }
+            set { SetProperty(ref _allStocksTitle, value); }
+        }
+
         private string _equityStockTitle = "Summary: Equity Stocks";
         public string EquityStockTitle
         {
@@ -117,19 +125,23 @@ namespace UBS.FundManager.UI.FundModule.UserControls
             {
                 GenerateGridData(downloadedFunds);
 
-                var fundSummary = new FundSummaryData
+                var fundSummary = new FundSummaryData { All = AllStocksGridData.First() };
+                if(EquityGridData != null && EquityGridData.Count() > 0)
                 {
-                    Equity = EquityGridData.First(),
-                    Bond = BondGridData.First(),
-                    All = AllStocksGridData.First()
-                };
+                    fundSummary.Equity = EquityGridData.First();
+                }
+
+                if (BondGridData != null && BondGridData.Count() > 0)
+                {
+                    fundSummary.Bond = BondGridData.First();
+                }
 
                 PopulateChart(fundSummary);
 
                 //It's essential to broadcast this data, as there might be other modules in the application
                 //that needs it to perform some operation (such as the FundsListViewModel) and in the event
                 //no module is subscribed to this broadcast, the data is garbage collected.
-                _eventAggregator.GetEvent<FundSummaryEvent>().Publish(fundSummary);
+                _eventAggregator.GetEvent<FundsListViewSummaryEvent>().Publish(fundSummary);
             }
             catch (Exception e)
             {
@@ -153,16 +165,11 @@ namespace UBS.FundManager.UI.FundModule.UserControls
             {
                 PopulateChart(updatedFundSummary);
 
-                //These chart's grids should only ever have a row of data
-                //so existing row should be updated with the new fund summary
-                BondGridData.RemoveAt(0);                   
-                BondGridData.Add(updatedFundSummary.Bond);
-
-                EquityGridData.RemoveAt(0);
-                EquityGridData.Add(updatedFundSummary.Equity);
-
-                AllStocksGridData.RemoveAt(0);
-                AllStocksGridData.Add(updatedFundSummary.All);
+                // These chart's grids should only ever have a row of data so existing row should be updated with the new fund summary
+                // but if this is the first stock added, just add it to the portfolio
+                UpdateBondGridData(updatedFundSummary);
+                UpdateEquityGridData(updatedFundSummary);
+                UpdateAllStocksGridData(updatedFundSummary);
             }
             catch (Exception e)
             {
@@ -211,31 +218,37 @@ namespace UBS.FundManager.UI.FundModule.UserControls
         {
             try
             {
-                EquityStocksChartData = new SeriesCollection
+                if(summaryData.Equity != null)
                 {
-                    new ColumnSeries {
-                        Title = string.Empty,
-                        Values = new ChartValues<decimal>
-                        {
-                            summaryData.Equity.TotalStockCount,
-                            summaryData.Equity.TotalMarketValue,
-                            summaryData.Equity.TotalStockWeight
+                    EquityStocksChartData = new SeriesCollection
+                    {
+                        new ColumnSeries {
+                            Title = string.Empty,
+                            Values = new ChartValues<decimal>
+                            {
+                                summaryData.Equity.TotalStockCount,
+                                summaryData.Equity.TotalMarketValue,
+                                summaryData.Equity.TotalStockWeight
+                            }
                         }
-                    }
-                };
+                    };
+                }
 
-                BondStocksChartData = new SeriesCollection
+                if(summaryData.Bond != null)
                 {
-                    new ColumnSeries {
-                        Title = string.Empty,
-                        Values = new ChartValues<decimal>
-                        {
-                            summaryData.Bond.TotalStockCount,
-                            summaryData.Bond.TotalMarketValue,
-                            summaryData.Bond.TotalStockWeight
+                    BondStocksChartData = new SeriesCollection
+                    {
+                        new ColumnSeries {
+                            Title = string.Empty,
+                            Values = new ChartValues<decimal>
+                            {
+                                summaryData.Bond.TotalStockCount,
+                                summaryData.Bond.TotalMarketValue,
+                                summaryData.Bond.TotalStockWeight
+                            }
                         }
-                    }
-                };
+                    };
+                }
             }
             catch (Exception e)
             {
@@ -257,35 +270,41 @@ namespace UBS.FundManager.UI.FundModule.UserControls
                 int bondsStockCount, equityStockCount;
                 GetFundCount(downloadedFunds, out bondsStockCount, out equityStockCount);
 
-                EquityGridData = new ObservableCollection<SummaryData>
+                SummaryData allStockSummaryData = new SummaryData();
+
+                SummaryData equitySummaryData;
+                if(equityStockValue?.Count() > 0)
                 {
-                    new SummaryData
+                    equitySummaryData = new SummaryData
                     {
                         TotalStockCount = equityStockCount,
                         TotalMarketValue = equityStockValue.Select(s => s.MarketValue).Sum().ToFixedDecimal(3),
                         TotalStockWeight = equityStockValue.Select(s => s.StockWeight).Sum().ToFixedDecimal(3)
-                    }
-                };
+                    };
+                    EquityGridData = new ObservableCollection<SummaryData> { equitySummaryData };
 
-                BondGridData = new ObservableCollection<SummaryData>
+                    allStockSummaryData.TotalStockCount = equityStockCount;
+                    allStockSummaryData.TotalMarketValue = equitySummaryData.TotalMarketValue;
+                    allStockSummaryData.TotalStockWeight = equitySummaryData.TotalStockWeight;
+                }
+
+                SummaryData bondSummaryData; 
+                if (bondStockValue?.Count() > 0)
                 {
-                    new SummaryData
+                    bondSummaryData = new SummaryData
                     {
                         TotalStockCount = bondsStockCount,
                         TotalMarketValue = bondStockValue.Select(s => s.MarketValue).Sum().ToFixedDecimal(3),
                         TotalStockWeight = bondStockValue.Select(s => s.StockWeight).Sum().ToFixedDecimal(3)
-                    }
-                };
+                    };
+                    BondGridData = new ObservableCollection<SummaryData> { bondSummaryData };
 
-                AllStocksGridData = new ObservableCollection<SummaryData>
-                {
-                    new SummaryData
-                    {
-                        TotalStockCount = EquityGridData.First().TotalStockCount + BondGridData.First().TotalStockCount,
-                        TotalMarketValue = EquityGridData.First().TotalMarketValue + BondGridData.First().TotalMarketValue,
-                        TotalStockWeight = EquityGridData.First().TotalStockWeight + BondGridData.First().TotalStockWeight,
-                    }
-                };
+                    allStockSummaryData.TotalStockCount += bondsStockCount;
+                    allStockSummaryData.TotalMarketValue += bondSummaryData.TotalMarketValue;
+                    allStockSummaryData.TotalStockWeight += bondSummaryData.TotalStockWeight;
+                }
+
+                AllStocksGridData = new ObservableCollection<SummaryData> { allStockSummaryData };
             }
             catch (Exception)
             {
@@ -331,6 +350,54 @@ namespace UBS.FundManager.UI.FundModule.UserControls
                                                     FundTypeEnum.Equity.ToString(),
                                                     StringComparison.InvariantCultureIgnoreCase))
                                                 .Select(f => f.StockInfo.ValueInfo);
+        }
+
+        /// <summary>
+        /// Update allstocks grid data
+        /// </summary>
+        /// <param name="updatedFundSummary">updated fund summary data</param>
+        private void UpdateAllStocksGridData(FundSummaryData updatedFundSummary)
+        {
+            if (AllStocksGridData.Count > 0)
+            {
+                AllStocksGridData.RemoveAt(0);
+            }
+
+            AllStocksGridData.Add(updatedFundSummary.All);
+        }
+
+        /// <summary>
+        /// Update equity grid data
+        /// </summary>
+        /// <param name="updatedFundSummary">updated fund summary data</param>
+        private void UpdateEquityGridData(FundSummaryData updatedFundSummary)
+        {
+            if (EquityGridData.Count > 0)
+            {
+                EquityGridData.RemoveAt(0);
+            }
+
+            if (updatedFundSummary.Equity != null)
+            {
+                EquityGridData.Add(updatedFundSummary.Equity);
+            }
+        }
+
+        /// <summary>
+        /// Update bond grid data
+        /// </summary>
+        /// <param name="updatedFundSummary">updated fund summary data</param>
+        private void UpdateBondGridData(FundSummaryData updatedFundSummary)
+        {
+            if (BondGridData.Count > 0)
+            {
+                BondGridData.RemoveAt(0);
+            }
+
+            if (updatedFundSummary.Bond != null)
+            {
+                BondGridData.Add(updatedFundSummary.Bond);
+            }
         }
         #endregion
     }

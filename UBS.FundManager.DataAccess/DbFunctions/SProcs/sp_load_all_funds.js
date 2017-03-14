@@ -21,8 +21,16 @@
                                         name: equityStock.$1.concat(index + 1),
                                         stockInfo: equityStock.$2
                                     };
+
                                     //Update the stock weight by => stock market value / total market value
-                                    stock.stockInfo.valueInfo.stockWeight = (stock.stockInfo.valueInfo.marketValue / totalMarketValue).toFixed(3);
+                                    var eweight = ((stock.stockInfo.valueInfo.marketValue / totalMarketValue) * 100).toFixed(3);
+
+                                    if (isNaN(eweight)) {
+                                        stock.stockInfo.valueInfo.stockWeight = -1;
+                                    }
+                                    else {
+                                        stock.stockInfo.valueInfo.stockWeight = eweight;
+                                    }
 
                                     return stock;
                                 });
@@ -36,7 +44,14 @@
                                     };
 
                                     //Update the stock weight by => stock market value / total market value
-                                    bstock.stockInfo.valueInfo.stockWeight = (bstock.stockInfo.valueInfo.marketValue / totalMarketValue).toFixed(3);
+                                    var bweight = ((bstock.stockInfo.valueInfo.marketValue / totalMarketValue) * 100).toFixed(3);
+
+                                    if (isNaN(bweight)) {
+                                        bstock.stockInfo.valueInfo.stockWeight = -1;
+                                    }
+                                    else {
+                                        bstock.stockInfo.valueInfo.stockWeight = bweight;
+                                    }
 
                                     return bstock;
                                 });
@@ -59,5 +74,5 @@ function bondStockFilter(value) {
 }
 
 function add(a, b) {
-    return a + b;
+    return parseInt(a) + parseInt(b);
 }

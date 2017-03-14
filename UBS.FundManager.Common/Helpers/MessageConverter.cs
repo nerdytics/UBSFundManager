@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Text;
 
 namespace UBS.FundManager.Common.Helpers
@@ -89,9 +88,37 @@ namespace UBS.FundManager.Common.Helpers
             }
         }
 
+        /// <summary>
+        /// Formats values to 3 d.p
+        /// </summary>
+        /// <param name="value">value to format</param>
+        /// <param name="precision">decimal places</param>
+        /// <returns></returns>
         public static decimal ToFixedDecimal(this decimal value, int precision)
         {
-            return Math.Round(value, precision);
+            return decimal.Round(value, precision);
+        }
+
+        /// <summary>
+        /// Calculates the stock weight 
+        /// </summary>
+        /// <param name="marketValue">src value</param>
+        /// <param name="totalMarketValue">secondary value</param>
+        /// <returns></returns>
+        public static decimal ToStockWeight(this decimal marketValue, decimal totalMarketValue)
+        {
+            return ((marketValue / totalMarketValue) * 100M).ToFixedDecimal(3);
+        }
+
+        /// <summary>
+        /// Sums two values
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="newValue"></param>
+        /// <returns></returns>
+        public static decimal CalculateTotal(this decimal source, decimal newValue)
+        {
+            return (source + newValue).ToFixedDecimal(3);
         }
     }
 }

@@ -45,10 +45,12 @@ namespace UBS.FundManager.UI.FundModule.UserControls
                           .Subscribe(OnDownloadedFundsList, ThreadOption.UIThread, false, DownloadedFundsListFilter);
 
             _eventAggregator.GetEvent<NewFundAddedEvent>()
-                          .Subscribe(OnNewFundAdded, ThreadOption.BackgroundThread, false);
+                          .Subscribe(OnNewFundAdded, ThreadOption.UIThread, false);
 
-            _eventAggregator.GetEvent<FundSummaryEvent>()
-                            .Subscribe(OnFundsSummaryReceived, ThreadOption.BackgroundThread, false, FundSummaryDataFilter);
+            _eventAggregator.GetEvent<FundsListViewSummaryEvent>()
+                            .Subscribe(OnFundsSummaryReceived, ThreadOption.UIThread, false, FundSummaryDataFilter);
+
+            DownloadedFundsList = new ObservableCollection<Fund>();
         }
 
         #region Aggregator Events Filter
@@ -61,8 +63,8 @@ namespace UBS.FundManager.UI.FundModule.UserControls
         /// <summary>
         /// Filter determines if a broadcasted funds summary should be received or ignored by this viewmodel
         /// </summary>
-        Predicate<FundSummaryData> FundSummaryDataFilter = (fundSummaryData) => fundSummaryData.Equity.TotalStockCount > 0 &&
-                                                                          fundSummaryData.Bond.TotalStockCount > 0 &&
+        Predicate<FundSummaryData> FundSummaryDataFilter = (fundSummaryData) => (fundSummaryData?.Equity?.TotalStockCount > 0 ||
+                                                                          fundSummaryData?.Bond?.TotalStockCount > 0) &&
                                                                           fundSummaryData.All.TotalStockCount > 0;
         #endregion
 
@@ -75,12 +77,14 @@ namespace UBS.FundManager.UI.FundModule.UserControls
         /// <param name="downloadedFunds">Downloaded funds from cloud</param>
         private async void OnDownloadedFundsList(IEnumerable<Fund> downloadedFunds)
         {
+            _eventAggregator.GetEvent<FundSummaryDownloadListEvent>().Publish(downloadedFunds);
+
             _dialogController = await ShowProgress(true);
             _logger.Log($"Updating the value of { nameof(DownloadedFundsList) } with value: { downloadedFunds.Serialise() }",
                         Category.Info,
                                 Priority.None);
 
-            DownloadedFundsList = new ObservableCollection<Fund>(downloadedFunds);
+            DownloadedFundsList.AddRange(downloadedFunds);
             BindingOperations.EnableCollectionSynchronization(DownloadedFundsList, monitor);
             _dialogController?.CloseAsync();
         }
@@ -97,7 +101,7 @@ namespace UBS.FundManager.UI.FundModule.UserControls
             _logger.Log($"{ GetType().Name }: FundSummary message received: { fundSummaryData.Serialise() }",
                         Category.Info,
                             Priority.None);
-            _fundSummaryData = fundSummaryData;
+            FundSummaryData = fundSummaryData;
         }
 
         /// <summary>
@@ -113,7 +117,8 @@ namespace UBS.FundManager.UI.FundModule.UserControls
                 foreach (IStockValueCalculator calculator in _stockCalculators)
                 {
                     _logger.Log($"{ GetType().Name }: Running calculators on new fund.", Category.Info, Priority.None);
-                    Fund updatedFund = calculator.Calculate(ref _fundSummaryData, newFund);
+                    var temp = FundSummaryData;
+                    Fund updatedFund = calculator.Calculate(ref temp, newFund);
 
                     if (updatedFund != null)
                     {
@@ -126,7 +131,7 @@ namespace UBS.FundManager.UI.FundModule.UserControls
 
                         //Broadcast updated fund summary data so that the chart and chart grids
                         //can be updated in realtime.
-                        _eventAggregator.GetEvent<FundSummaryEvent>().Publish(_fundSummaryData);
+                        _eventAggregator.GetEvent<FundSummaryEvent>().Publish(temp);
                     }
                 }
             }
@@ -192,10 +197,7 @@ namespace UBS.FundManager.UI.FundModule.UserControls
         {
             try
             {
-                _logger.Log($"{ GetType().Name }: Broadcasting '{ nameof(FundSummaryEvent) }' with payload: " +
-            $"{ _fundSummaryData.Serialise() }", Category.Info, Priority.None);
                 _messagingClient.Start();
-
                 _messagingClient.Publish(new DownloadFundsRequest
                 {
                     DatasetSize = 100
