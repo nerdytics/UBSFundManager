@@ -7,7 +7,8 @@
              xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
              xmlns:mcontrols="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              xmlns:extDialogs="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             ShutdownMode="OnMainWindowClose">
     <Application.Resources>
         <ResourceDictionary>
 

@@ -1,5 +1,6 @@
 ﻿using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
+using System;
 using System.Windows;
 using UBS.FundManager.Messaging;
 
@@ -17,20 +18,28 @@ namespace UBS.FundManager.UI.Shell
 
             InitializeComponent();
             this.Closing += Shell_Closing;
+            this.Closed += Shell_Closed;
         }
 
+        /// <summary>
+        /// Terminate application process and pass the exit code to the OS
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Shell_Closed(object sender, System.EventArgs e)
+        {
+            Environment.Exit(0);
+        }
+
+        /// <summary>
+        /// Dispose resources while application is shutting down..
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Shell_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             _messagingClient.Dispose();
             Application.Current.Shutdown();
-            //MessageDialogResult dialogResult = await _dialogService.ShowMessageAsync(this, "Shutting Down",
-            //                                                            "Are you sure about shutting down?", MessageDialogStyle.AffirmativeAndNegative);
-
-            //if (dialogResult == MessageDialogResult.Affirmative)
-            //{
-            //    _messagingClient.Dispose();
-            //    Application.Current.Shutdown();
-            //}
         }
 
         private IMessagingClient _messagingClient;
