@@ -32,7 +32,7 @@
 
         <!--All Stock Summary-->
         <Expander Grid.Row="0" 
-                  Header="{Binding AllStockTitle}" 
+                  Header="{Binding AllStocksTitle}" 
                   IsExpanded="True" 
                   Margin="{StaticResource ControlMargin}">
             <Grid>
