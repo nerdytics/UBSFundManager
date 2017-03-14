@@ -11,17 +11,38 @@
 
 # Brief Overview
 Basically the application consists of the following components:
-* Window Service that listens on an AMQP host (deployed to an AzureVM as a cloud service)
+* Window Service that listens on an AMQP host (deployed to an AzureVM as a cloud service). Everytime the service is started is sets up the database (even if it already exists, it deletes and recreates it). In production, this feature might probably be modified to not delete if already existing; but i intentionally made it this way so i can easily test database upgrades during development.
 
-* Azure DocumentDB NoSQL database (with stored procedures / user defined functions) for fast
-query processing. Also uses MapR functions to improve query performance.
+* The window service also sets up the AMQP exchange(s) and queues(s) on startup if not already created (however does not try to recreate if already created).
 
-* Prism MVVM driven WPF UI (with Unity IoC)
+* Azure DocumentDB NoSQL database (with stored procedures / user defined functions) for fast query processing. Also uses MapR functions to improve query performance.
+
+* Prism MVVM driven WPF UI (with Unity IoC) that implements cross-module events sourcing.
 
 * Messaging Library that abstracts AMQP connectivity from the WPF UI. Also enables easy publishing and receiving of messages from the AMQP host.
 
 * In the 'AddFund' panel at the top, the button only gets enabled when all required information has been provided.
 * In the 'FundSummary' panel to the right there is a miniature chart that visualises the information in the summary grid
+* Regarding logging, the logger writes to file and also to the system event logs. A new log category 'UBSFundManager' is created. The WPF UI writes to this as 'UBSFundManagerUI' while the window service writes to this as 'UBSFundManagerWindowService'.
+
+# Projects Description
+* UBS.FundManager.UI - This is  a WPF shell that hosts the application's module. In this application, there's only one module hosted by the shell.
+
+* UBS.FundManager.UI.FundModule - This is the fund module that is used in rendering content by the fundmanager shell. This modular approach has been adopted to ensure the shell is dynamic and easily supports loading / unloading of modules without any significant code change to the shell itself.
+
+* UBS.FundManager.Service - This is a window service that hosts components that know how to handle different requests. Some of the include:
+- Adding a new stock to a fund portfolio
+- Downloading all stocks in a portfolio
+
+* UBS.FundManager.CloudService / UBS.FundManager.CloudService.Worker - Both projects are Azure IaaS projects that enables the deployment of the 'UBS.FundManager.Service' to an Azure VM.
+
+* UBS.FundManager.DataAccess - This exposes functionality for setting up the database and executing CRUD operations.
+
+* UBS.FundManager.Common - Shared access library with references to application specific models or utility classes.
+
+* UBS.FundManager.Messaging - AMQP messaging library that encapsulate the inner details of how to connect, publish and subscribe to messages from a consuming client (was going to publish this as a Nuget package). It's a standalone that can be used by any application to connect to an AMQP host.
+
+* UBS.FundManager.Tests - Collection of tests to test the core features of the application.
 
 # Screenshots - FundManager UI
 https://cloud.githubusercontent.com/assets/26350963/23836207/9ffee326-076c-11e7-998e-d42f0563cc16.PNG
@@ -38,4 +59,6 @@ https://cloud.githubusercontent.com/assets/26350963/23836203/9fe910fa-076c-11e7-
 https://cloud.githubusercontent.com/assets/26350963/23836202/9fe5e3d0-076c-11e7-99a1-3149f8c589b2.PNG
 https://cloud.githubusercontent.com/assets/26350963/23836198/9fd0b212-076c-11e7-8fea-cbee66386360.PNG
 https://cloud.githubusercontent.com/assets/26350963/23836200/9fd0fe98-076c-11e7-907c-83d0c52bd863.PNG
+https://cloud.githubusercontent.com/assets/26350963/23890458/e39d343e-0889-11e7-80aa-894773dc4e3e.PNG
+https://cloud.githubusercontent.com/assets/26350963/23890564/52b9c594-088a-11e7-9f89-dd52801769a7.PNG
 
